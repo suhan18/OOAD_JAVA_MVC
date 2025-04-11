@@ -26,27 +26,26 @@ CREATE TABLE book (
     Edition VARCHAR(50),
     ISBN VARCHAR(20),
     available BIT(1) NOT NULL,
-    due_date VARCHAR(255)
+    due_date DATE
 );
 
--- Create the 'book_management' table
-CREATE TABLE book_management (
-    Admin_ID INT,
+-- Create the 'reservation' table
+CREATE TABLE reservation (
+    Reservation_ID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    Status ENUM('Active', 'Cancelled', 'Completed'),
+    Reservation_date DATE,
+    Member_ID INT,
     Book_ID INT,
-    FOREIGN KEY (Admin_ID) REFERENCES administrator(Admin_ID),
     FOREIGN KEY (Book_ID) REFERENCES book(Book_ID)
 );
 
--- Create the 'borrowed' table
-CREATE TABLE borrowed (
-    borrow_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    member_id INT NOT NULL,
-    book_id INT NOT NULL,
-    date_of_borrowing DATE DEFAULT CURRENT_DATE,
-    date_returned DATE,
-    date_due DATETIME GENERATED ALWAYS AS (DATE_ADD(date_of_borrowing, INTERVAL 14 DAY)) VIRTUAL,
-    FOREIGN KEY (member_id) REFERENCES member(Member_ID),
-    FOREIGN KEY (book_id) REFERENCES book(Book_ID)
+-- Create the 'book_transaction' table (renamed from 'transaction')
+CREATE TABLE book_transaction (
+    Transaction_ID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    Book_ID INT,
+    Member_ID INT,
+    Fine DECIMAL(10, 2),
+    FOREIGN KEY (Book_ID) REFERENCES book(Book_ID)
 );
 
 -- Create the 'member' table
@@ -58,8 +57,16 @@ CREATE TABLE member (
     Transaction_ID INT,
     Book_ID INT,
     FOREIGN KEY (Reservation_ID) REFERENCES reservation(Reservation_ID),
-    FOREIGN KEY (Transaction_ID) REFERENCES transaction(Transaction_ID)
+    FOREIGN KEY (Transaction_ID) REFERENCES book_transaction(Transaction_ID)
 );
+
+-- Add foreign key to reservation table for member (now that member exists)
+ALTER TABLE reservation
+ADD CONSTRAINT fk_reservation_member FOREIGN KEY (Member_ID) REFERENCES member(Member_ID);
+
+-- Add foreign key to book_transaction table for member (now that member exists)
+ALTER TABLE book_transaction
+ADD CONSTRAINT fk_transaction_member FOREIGN KEY (Member_ID) REFERENCES member(Member_ID);
 
 -- Create the 'member_phone' table
 CREATE TABLE member_phone (
@@ -68,23 +75,22 @@ CREATE TABLE member_phone (
     FOREIGN KEY (Member_ID) REFERENCES member(Member_ID)
 );
 
--- Create the 'reservation' table
-CREATE TABLE reservation (
-    Reservation_ID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    Status ENUM('Active', 'Cancelled', 'Completed'),
-    Reservation_date DATE,
-    Member_ID INT,
-    Book_ID INT,
-    FOREIGN KEY (Member_ID) REFERENCES member(Member_ID),
-    FOREIGN KEY (Book_ID) REFERENCES book(Book_ID)
+-- Create the 'borrowed' table
+CREATE TABLE borrowed (
+    borrow_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    member_id INT NOT NULL,
+    book_id INT NOT NULL,
+    date_of_borrowing DATE DEFAULT (CURRENT_DATE),
+    date_returned DATE,
+    date_due DATETIME GENERATED ALWAYS AS (DATE_ADD(date_of_borrowing, INTERVAL 14 DAY)) VIRTUAL,
+    FOREIGN KEY (member_id) REFERENCES member(Member_ID),
+    FOREIGN KEY (book_id) REFERENCES book(Book_ID)
 );
 
--- Create the 'transaction' table
-CREATE TABLE transaction (
-    Transaction_ID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+-- Create the 'book_management' table
+CREATE TABLE book_management (
+    Admin_ID INT,
     Book_ID INT,
-    Member_ID INT,
-    Fine DECIMAL(10, 2),
-    FOREIGN KEY (Book_ID) REFERENCES book(Book_ID),
-    FOREIGN KEY (Member_ID) REFERENCES member(Member_ID)
+    FOREIGN KEY (Admin_ID) REFERENCES administrator(Admin_ID),
+    FOREIGN KEY (Book_ID) REFERENCES book(Book_ID)
 );
