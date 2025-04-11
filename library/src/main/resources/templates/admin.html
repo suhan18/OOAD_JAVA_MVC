@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Admin Panel</title>
+    <style>
+        .alert-success {
+            background-color: #c1f0c1;
+            padding: 10px;
+            border: 1px solid green;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Admin Panel - Manage Books</h1>
+
+<!-- ✅ Success message -->
+<div th:if="${successMessage}" class="alert-success" th:text="${successMessage}"></div>
+
+<div th:if="${errorMessage}" style="color: red;">
+    <p th:text="${errorMessage}"></p>
+</div>
+
+<!-- ✅ Add Book Form -->
+<h2>Add a Book</h2>
+<form th:action="@{/admin/addBook}" method="post" th:object="${book}">
+    <label>Title: <input type="text" th:field="*{title}" /></label><br/>
+    <label>Author: <input type="text" th:field="*{author}" /></label><br/>
+    <label>Status: <input type="text" th:field="*{status}" /></label><br/>
+    <label>Publisher: <input type="text" th:field="*{publisher}" /></label><br/>
+    <label>Edition: <input type="text" th:field="*{edition}" /></label><br/>
+    <label>ISBN: <input type="text" th:field="*{isbn}" /></label><br/>
+    <label>Available: <input type="checkbox" th:field="*{available}" /></label><br/>
+    <label>Due Date: <input type="text" th:field="*{dueDate}" /></label><br/>
+    <button type="submit">Add Book</button>
+</form>
+<!-- 🔹 Find Book to Update -->
+<form th:action="@{/admin/findBookByIsbn}" method="get">
+    <input type="text" name="isbn" placeholder="Enter ISBN to Update" required />
+    <button type="submit">Find</button>
+</form>
+
+<!-- 🔹 Show Update Form if Book Found -->
+<div th:if="${bookToUpdate}">
+    <h3>Edit Book Details</h3>
+    <form th:action="@{/admin/updateBook}" method="post" th:object="${bookToUpdate}">
+
+        <input type="hidden" th:field="*{Book_ID}" />
+        Title: <input type="text" th:field="*{title}" /><br />
+        Author: <input type="text" th:field="*{author}" /><br />
+        Status: <input type="text" th:field="*{status}" /><br />
+        Publisher: <input type="text" th:field="*{publisher}" /><br />
+        Edition: <input type="text" th:field="*{edition}" /><br />
+        ISBN: <input type="text" th:field="*{isbn}" readonly /><br />
+        Available: <input type="checkbox" th:field="*{available}" /><br />
+        Due Date: <input type="text" th:field="*{dueDate}" /><br />
+        <button type="submit">Update Book</button>
+    </form>
+</div>
+
+<!-- 🔹 Delete Book -->
+<h3>Delete Book</h3>
+<form th:action="@{/admin/deleteBook}" method="post">
+
+    <input type="text" name="isbn" placeholder="Enter ISBN to Delete" required />
+    <button type="submit">Delete</button>
+</form>
+
+    
+<!-- ✅ Book List -->
+<h2>Book List</h2>
+<table border="1">
+    <thead>
+        <tr>
+            <th>ID</th><th>Title</th><th>Author</th><th>Status</th><th>Publisher</th>
+            <th>Edition</th><th>ISBN</th><th>Available</th><th>Due Date</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr th:each="book : ${books}">
+            <td th:text="${book.book_ID}"></td>
+            <td th:text="${book.title}"></td>
+            <td th:text="${book.author}"></td>
+            <td th:text="${book.status}"></td>
+            <td th:text="${book.publisher}"></td>
+            <td th:text="${book.edition}"></td>
+            <td th:text="${book.isbn}"></td>
+            <td th:text="${book.available ? 'Yes' : 'No'}"></td>
+            <td th:text="${book.dueDate}"></td>
+        </tr>
+    </tbody>
+</table>
+
+</body>
+</html>

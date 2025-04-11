@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Manage Members</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}" />
+</head>
+<body>
+    <h1>Member Management</h1>
+
+    <h2>Add New Member</h2>
+    <form action="/admin/addMember" method="post">
+        Name: <input type="text" name="name" required>
+        Email: <input type="email" name="email" required>
+        <button type="submit">Add Member</button>
+    </form>
+
+    <h2>All Members</h2>
+    <table>
+        <tr><th>ID</th><th>Name</th><th>Email</th><th>Actions</th></tr>
+        <tr th:each="member : ${members}">
+            <form action="/admin/updateMember" method="post">
+                <td th:text="${member.id}"></td>
+                <td>
+                    <input type="text" name="name" th:value="${member.name}" required>
+                    <input type="hidden" name="id" th:value="${member.id}">
+                </td>
+                <td>
+                    <input type="email" name="email" th:value="${member.email}" required>
+                </td>
+                <td>
+                    <button type="submit">Update</button>
+                </form>
+                <form action="/admin/deleteMember" method="post" style="display:inline;">
+                    <input type="hidden" name="id" th:value="${member.id}" />
+                    <button type="submit">Delete</button>
+                </form>
+                </td>
+        </tr>
+    </table>
+
+    <br>
+    <a href="/admin">Back to Admin Dashboard</a>
+</body>
+</html>
