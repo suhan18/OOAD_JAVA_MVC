@@ -1,0 +1,90 @@
+-- Create the database
+CREATE DATABASE librarymanagement;
+USE librarymanagement;
+
+-- Create the 'admin' table
+CREATE TABLE admin (
+    id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    password VARCHAR(255),
+    username VARCHAR(255)
+);
+
+-- Create the 'administrator' table
+CREATE TABLE administrator (
+    Admin_ID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    Name VARCHAR(100),
+    Email VARCHAR(100)
+);
+
+-- Create the 'book' table
+CREATE TABLE book (
+    Book_ID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(255),
+    author VARCHAR(255),
+    status VARCHAR(255),
+    Publisher VARCHAR(100),
+    Edition VARCHAR(50),
+    ISBN VARCHAR(20),
+    available BIT(1) NOT NULL,
+    due_date VARCHAR(255)
+);
+
+-- Create the 'book_management' table
+CREATE TABLE book_management (
+    Admin_ID INT,
+    Book_ID INT,
+    FOREIGN KEY (Admin_ID) REFERENCES administrator(Admin_ID),
+    FOREIGN KEY (Book_ID) REFERENCES book(Book_ID)
+);
+
+-- Create the 'borrowed' table
+CREATE TABLE borrowed (
+    borrow_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    member_id INT NOT NULL,
+    book_id INT NOT NULL,
+    date_of_borrowing DATE DEFAULT CURRENT_DATE,
+    date_returned DATE,
+    date_due DATETIME GENERATED ALWAYS AS (DATE_ADD(date_of_borrowing, INTERVAL 14 DAY)) VIRTUAL,
+    FOREIGN KEY (member_id) REFERENCES member(Member_ID),
+    FOREIGN KEY (book_id) REFERENCES book(Book_ID)
+);
+
+-- Create the 'member' table
+CREATE TABLE member (
+    Member_ID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255),
+    email VARCHAR(255),
+    Reservation_ID INT,
+    Transaction_ID INT,
+    Book_ID INT,
+    FOREIGN KEY (Reservation_ID) REFERENCES reservation(Reservation_ID),
+    FOREIGN KEY (Transaction_ID) REFERENCES transaction(Transaction_ID)
+);
+
+-- Create the 'member_phone' table
+CREATE TABLE member_phone (
+    Member_ID INT,
+    Phone_no VARCHAR(15),
+    FOREIGN KEY (Member_ID) REFERENCES member(Member_ID)
+);
+
+-- Create the 'reservation' table
+CREATE TABLE reservation (
+    Reservation_ID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    Status ENUM('Active', 'Cancelled', 'Completed'),
+    Reservation_date DATE,
+    Member_ID INT,
+    Book_ID INT,
+    FOREIGN KEY (Member_ID) REFERENCES member(Member_ID),
+    FOREIGN KEY (Book_ID) REFERENCES book(Book_ID)
+);
+
+-- Create the 'transaction' table
+CREATE TABLE transaction (
+    Transaction_ID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    Book_ID INT,
+    Member_ID INT,
+    Fine DECIMAL(10, 2),
+    FOREIGN KEY (Book_ID) REFERENCES book(Book_ID),
+    FOREIGN KEY (Member_ID) REFERENCES member(Member_ID)
+);
