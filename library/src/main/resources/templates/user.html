@@ -1,34 +1,78 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>User Dashboard</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Library Books</title>
+
+    <!-- Link to the external CSS file -->
+    <link rel="stylesheet" th:href="@{/css/style.css}" />
 </head>
 <body>
-    <h1>User Dashboard</h1>
 
-    <h2>All Books</h2>
+<div class="container">
+    <h1>Books Available in the Library</h1>
+
+    <!-- Display success or error messages -->
+    <div class="alert-success" th:if="${successMessage}" th:text="${successMessage}"></div>
+    <div class="alert-error" th:if="${errorMessage}" th:text="${errorMessage}"></div>
+    <div th:if="${fineMessage}">
+        <div class="alert-success" th:if="${fineMessage == '0'}" th:text="No fine">No fine!</div>
+        <div class="alert-error" th:if="${fineMessage != '0'}" th:text="${fineMessage}"></div>
+    </div>
+    
+    <!-- Button to go to /user/books -->
+    <div class="button-link">
+        <a href="/user/books">See All Books</a>
+    </div>
+
+    <!-- Table to display books -->
     <table>
-        <tr><th>Title</th><th>Author</th><th>Status</th><th>Due Date</th><th>Actions</th></tr>
-        <tr th:each="book : ${books}">
-            <td th:text="${book.title}"></td>
-            <td th:text="${book.author}"></td>
-            <td th:text="${book.status}"></td>
-            <td th:text="${book.dueDate}"></td>
-            <td>
-                <form th:action="@{/user/borrowBook}" method="post" th:if="${book.status == 'Available'}">
-                    <input type="hidden" name="bookId" th:value="${book.id}" />
-                    <input type="text" name="memberId" placeholder="Member ID" required />
-                    <button type="submit">Borrow</button>
-                </form>
-
-                <form th:action="@{/user/returnBook}" method="post" th:if="${book.status == 'CheckedOut'}">
-                    <input type="hidden" name="bookId" th:value="${book.id}" />
-                    <button type="submit">Return</button>
-                </form>
-            </td>
-        </tr>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Title</th>
+                <th>Author</th>
+                <th>Status</th>
+                <th>Publisher</th>
+                <th>Edition</th>
+                <th>ISBN</th>
+                <th>Due Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Loop through books list and display each book -->
+            <tr th:each="book : ${books}">
+                <td th:text="${book.book_ID}"></td>
+                <td th:text="${book.title}"></td>
+                <td th:text="${book.author}"></td>
+                <td th:text="${book.status}"></td>
+                <td th:text="${book.publisher}"></td>
+                <td th:text="${book.edition}"></td>
+                <td th:text="${book.isbn}"></td>
+                <td th:text="${book.dueDate}"></td>
+            </tr>
+        </tbody>
     </table>
 
-    <a href="/">Back to Home</a>
+    <!-- Borrow Book Form -->
+    <div class="form-container">
+        <form action="/user/borrow" method="post">
+            <input type="number" name="id" placeholder="Book ID to Borrow" required/>
+            <button type="submit">Borrow Book</button>
+        </form>
+    </div>
+
+    <!-- Return Book Form -->
+    <div class="form-container">
+        <form action="/user/return" method="post">
+            <input type="number" name="id" placeholder="Book ID to Return" required/>
+            <input type="date" name="returnDate" required/>
+            <button type="submit">Return Book</button>
+        </form>
+        
+    </div>
+</div>
+
 </body>
 </html>
