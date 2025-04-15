@@ -94,3 +94,7 @@ CREATE TABLE book_management (
     FOREIGN KEY (Admin_ID) REFERENCES administrator(Admin_ID),
     FOREIGN KEY (Book_ID) REFERENCES book(Book_ID)
 );
+--Changes required
+ALTER TABLE book DROP COLUMN available;
+Query OK, 0 rows affected (0.89 sec)
+Records: 0  Duplicates: 0  Warnings: 0
