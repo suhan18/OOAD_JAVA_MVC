@@ -53,13 +53,30 @@ public class BookService {
         });
     }
 
-    public Optional<Book> returnBook(Integer bookId) {
+    public Optional<ReturnResult> returnBookWithFine(Integer bookId, String returnDateStr) {
         return repo.findById(bookId).map(book -> {
-            book.setStatus("Available");
-            book.setDueDate(null);
-            return repo.save(book);
+            if ("CheckedOut".equalsIgnoreCase(book.getStatus())) {
+                int fine = calculateFine(book, returnDateStr);
+                book.setStatus("Available");
+                book.setDueDate(null); // clear due date after calculating
+                Book updatedBook = repo.save(book);
+                return new ReturnResult(updatedBook, fine);
+            }
+            return null;
         });
     }
+    
+    
+    public int calculateFine(Book book, String returnDateStr) {
+        if (book.getDueDate() == null) return 0;
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate dueDate = LocalDate.parse(book.getDueDate(), formatter);
+        LocalDate returnDate = LocalDate.parse(returnDateStr, formatter);
+    
+        long daysLate = java.time.temporal.ChronoUnit.DAYS.between(dueDate, returnDate);
+        return (int) (daysLate > 0 ? daysLate * 10 : 0); // ₹10 per day
+    }
+    
 
     public List<Book> searchBooks(String title, String author) {
         return repo.findByTitleContainingIgnoreCaseAndAuthorContainingIgnoreCase(title, author);
